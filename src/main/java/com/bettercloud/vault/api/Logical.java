@@ -11,7 +11,10 @@ import com.bettercloud.vault.rest.RestException;
 import com.bettercloud.vault.rest.RestResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.bettercloud.vault.api.LogicalUtilities.adjustPathForDelete;
 import static com.bettercloud.vault.api.LogicalUtilities.adjustPathForList;
@@ -623,10 +626,21 @@ public class Logical {
         }
     }
 
+    /**
+     * <p> Provides which secrets engine version to use for the desired path.
+     * Checks to see if the relative path is in the secretsEnginePathMap, and returns the specified value if it is.
+     * Otherwise return the globalEngineVersion. </p>
+     *
+     * @param secretPath The desired Vault path to access
+     * @return The engine version that should be used to access the path
+     */
     private Integer engineVersionForSecretPath(final String secretPath) {
         if (!this.config.getSecretsEnginePathMap().isEmpty()) {
-            return this.config.getSecretsEnginePathMap().containsKey(secretPath + "/") ?
-                    Integer.valueOf(this.config.getSecretsEnginePathMap().get(secretPath + "/"))
+            Optional<String> matchedKeyPrefix = this.config.getSecretsEnginePathMap().keySet().stream()
+                    .filter(key -> key.startsWith(secretPath))
+                    .findFirst();
+            return matchedKeyPrefix.isPresent() ?
+                    Integer.valueOf(this.config.getSecretsEnginePathMap().get(matchedKeyPrefix))
                     : this.config.getGlobalEngineVersion();
         }
         return this.config.getGlobalEngineVersion();
