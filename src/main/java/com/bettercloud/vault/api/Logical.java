@@ -637,7 +637,7 @@ public class Logical {
     private Integer engineVersionForSecretPath(final String secretPath) {
         if (!this.config.getSecretsEnginePathMap().isEmpty()) {
             Optional<String> matchedKeyPrefix = this.config.getSecretsEnginePathMap().keySet().stream()
-                    .filter(key -> key.startsWith(secretPath))
+                    .filter(key -> secretPath.startsWith(key))
                     .findFirst();
             return matchedKeyPrefix.isPresent() ?
                     Integer.valueOf(this.config.getSecretsEnginePathMap().get(matchedKeyPrefix))
