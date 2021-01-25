@@ -640,7 +640,7 @@ public class Logical {
                     .filter(key -> secretPath.startsWith(key))
                     .findFirst();
             return matchedKeyPrefix.isPresent() ?
-                    Integer.valueOf(this.config.getSecretsEnginePathMap().get(matchedKeyPrefix))
+                    Integer.valueOf(this.config.getSecretsEnginePathMap().get(matchedKeyPrefix.get()))
                     : this.config.getGlobalEngineVersion();
         }
         return this.config.getGlobalEngineVersion();
