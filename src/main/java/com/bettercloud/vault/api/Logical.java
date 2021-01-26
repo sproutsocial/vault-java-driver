@@ -11,10 +11,8 @@ import com.bettercloud.vault.rest.RestException;
 import com.bettercloud.vault.rest.RestResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.bettercloud.vault.api.LogicalUtilities.adjustPathForDelete;
 import static com.bettercloud.vault.api.LogicalUtilities.adjustPathForList;
