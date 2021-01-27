@@ -36,46 +36,5 @@ pipeline {
                 sh "docker run --rm -it -v ${workspace}:/src -w /src gradle:6.8.1-jdk11 gradle build"
             }
         }
-
-//         stage('Package & Publish') {
-//             steps {
-//                 script {
-//
-//                     withCredentials([usernamePassword(credentialsId: 'maven-username-password', passwordVariable: 'mvnPassword', usernameVariable: 'mvnUsername')]) {
-//                         dockerRun = "docker run --rm -v \"${workspace}:/src\" -w /src $DOCKER_CONTAINER:$DOCKER_TAG"
-//
-//                         def gradleProperties = [
-//                                 "org.gradle.jvmargs": "-Xmx1536m",
-//                                 "android.useAndroidX": "true",
-//                                 "android.enableJetifier": "true",
-//                                 "kotlin.code.style": "official",
-//                                 "SPROUT_NEXUS_USERNAME": mvnUsername,
-//                                 "SPROUT_NEXUS_PASSWORD": mvnPassword
-//                         ]
-//
-//                         // Drop in some config properties
-//                         sh "echo 'sdk.dir=/usr/local/android-sdk' > local.properties"
-//
-//                         // Delete existing file, so we can append from a fresh state.
-//                         sh "echo > gradle.properties"
-//
-//                         gradleProperties.each { k, v ->
-//                             sh "echo \"${k}=${v}\" >> gradle.properties"
-//                         }
-//
-//                         sh "${dockerRun} /bin/bash -c \"./gradlew :components:assembleRelease && ./gradlew publishMavenPublicationToSproutNexusRepository\""
-//                     }
-//                 }
-//             }
-//         }
     }
-//
-//     post {
-//         success {
-//             slackSend channel:slackChannel, color: 'good', message: "Success: ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
-//         }
-//         failure {
-//             slackSend channel:slackChannel, color: 'bad', message: "Failure: ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
-//         }
-//     }
 }
