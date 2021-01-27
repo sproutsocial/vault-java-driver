@@ -2,11 +2,12 @@ apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'checkstyle'
+apply plugin: 'maven-publish'
 
 group 'com.bettercloud'
 archivesBaseName = 'vault-java-driver'
-version '5.1.0'
-ext.isReleaseVersion = !version.endsWith('SNAPSHOT')
+version '5.3.0'
+ext.isReleaseVersion = true //!version.endsWith('SNAPSHOT')
 
 // This project is actually limited to Java 8 compatibility.  See below.
 sourceCompatibility = 9
@@ -121,6 +122,25 @@ task integrationTest(type: Test) {
     }
 }
 
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        mavenLocal()
+        maven {
+            name '$nexusName'
+            url '$nexusURL'
+            credentials {
+                username nexusUsername
+                password nexusPassword
+            }
+        }
+    }
+}
+
 //
 // Deploying releases to Maven Central (or snapshots to a local Nexus repository).
 //
@@ -148,67 +168,4 @@ if (!hasProperty('nexusPassword')) {
 
 artifacts {
     archives javadocJar, sourcesJar
-}
-
-signing {
-    required { isReleaseVersion && gradle.taskGraph.hasTask("uploadArchives") }
-    sign configurations.archives
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
-
-//            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-//                authentication(userName: ossrhUsername, password: ossrhPassword)
-//            }
-            snapshotRepository(url: nexusUrl) {
-                authentication(userName: nexusUsername, password: nexusPassword)
-            }
-
-            pom.project {
-                name 'vault-java-driver'
-                packaging 'jar'
-                // optionally artifactId can be defined here
-                description 'Zero-dependency Java client for HashiCorp\'s Vault'
-                url 'https://github.com/BetterCloud/vault-java-driver'
-
-                scm {
-                    connection 'https://github.com/BetterCloud/vault-java-driver.git'
-                    developerConnection 'https://github.com/BetterCloud/vault-java-driver.git'
-                    url 'https://github.com/BetterCloud/vault-java-driver'
-                }
-
-                licenses {
-                    license {
-                        name 'MIT'
-                        url 'https://github.com/BetterCloud/vault-java-driver/blob/master/README.md'
-                    }
-                }
-
-                developers {[
-                    developer {
-                        id 'steve-perkins'
-                        name 'Steve Perkins'
-                        email 'steve@steveperkins.com'
-                    },
-                    developer {
-                        id 'steve-perkins-bc'
-                        name 'Steve Perkins'
-                        email 'steve.perkins@bettercloud.com'
-                    },
-                    developer {
-                        id 'jarrodcodes'
-                        name 'Jarrod Young'
-                        email 'jarrodsy@gmail.com'
-                    }
-                ]}
-            }
-        }
-    }
 }
