@@ -73,9 +73,10 @@ public class VaultTests {
     public void testVaultWithoutKVEnginePathMap() throws VaultException {
         Map<String, String> engineKVMap = new HashMap<>();
         engineKVMap.put("/hello", "2");
-        VaultConfig vaultConfig = new VaultConfig().secretsEnginePathMap(engineKVMap);
+        VaultConfig vaultConfig = new VaultConfig();
         Vault vault = new Vault(vaultConfig, false, 1);
         Assert.assertNotNull(vault);
+        String value = vault.logical().getEngineVersionForSecretPath("/hello").toString();
         Assert.assertEquals(String.valueOf(1), vault.logical().getEngineVersionForSecretPath("/hello").toString());
         Assert.assertEquals(String.valueOf(1), vault.logical().getEngineVersionForSecretPath("notInMap").toString());
     }
@@ -83,12 +84,24 @@ public class VaultTests {
     @Test
     public void kvEngineMapIsHonored() throws VaultException {
         HashMap<String, String> testMap = new HashMap<>();
-        testMap.put("kv-v1/", "1");
+        testMap.put("kv-v1", "1");
         VaultConfig vaultConfig = new VaultConfig().secretsEnginePathMap(testMap);
         Assert.assertNotNull(vaultConfig);
         Vault vault = new Vault(vaultConfig, true, 2);
         Assert.assertNotNull(vault);
         Assert.assertEquals(String.valueOf(1), vault.logical().getEngineVersionForSecretPath("kv-v1").toString());
+        Assert.assertEquals(String.valueOf(2), vault.logical().getEngineVersionForSecretPath("notInMap").toString());
+    }
+
+    @Test
+    public void kvEngineMapRelativePathsAreHonored() throws VaultException {
+        HashMap<String, String> testMap = new HashMap<>();
+        testMap.put("kv-v1", "1");
+        VaultConfig vaultConfig = new VaultConfig().secretsEnginePathMap(testMap);
+        Assert.assertNotNull(vaultConfig);
+        Vault vault = new Vault(vaultConfig, true, 2);
+        Assert.assertNotNull(vault);
+        Assert.assertEquals(String.valueOf(1), vault.logical().getEngineVersionForSecretPath("kv-v1/folder").toString());
         Assert.assertEquals(String.valueOf(2), vault.logical().getEngineVersionForSecretPath("notInMap").toString());
     }
 

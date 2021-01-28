@@ -11,8 +11,18 @@ alike, without causing conflicts with any other dependency.
 NOTE:  Although the binary artifact produced by the project is backwards-compatible with Java 8, you do need 
        JDK 9 or higher to modify or build the source code of this library itself.
 
-This Change
+Deploying Vault Java Driver
 -----------
+To deploy the vault-java-driver locally, run 
+```
+./gradlew build && ./gradlew publishToMavenLocal
+```
+
+To deploy the vault-java-driver to a repository, set the proper credentials in `gradle.properties` and then run 
+```
+./gradlew publish{publication_name}To{repository_}Repository
+```
+`publications` and `repositories` can be found in the `publishing` block in the `build.grade` file. 
 
 Table of Contents
 -----------------
