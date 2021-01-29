@@ -1,8 +1,8 @@
 package com.bettercloud.vault;
 
 import java.io.Serializable;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <p>A container for the configuration settings needed to initialize a <code>Vault</code> driver instance.</p>
@@ -30,7 +30,7 @@ public class VaultConfig implements Serializable {
     private static final String VAULT_OPEN_TIMEOUT = "VAULT_OPEN_TIMEOUT";
     private static final String VAULT_READ_TIMEOUT = "VAULT_READ_TIMEOUT";
 
-    private Map<String, String> secretsEnginePathMap = new ConcurrentHashMap<>();
+    private Map<String, String> secretsEnginePathMap = new LinkedHashMap<>();
     private String address;
     private String token;
     private SslConfig sslConfig;
@@ -136,6 +136,8 @@ public class VaultConfig implements Serializable {
 
     /**
      * <p>Sets the secrets Engine paths used by Vault.</p>
+     * NOTE: This uses a LinkedHashMap for ordering entries in the map, but could cause performance issues in the future.
+     * In the case of performance issues, consider replacing with a concurrentHashMap
      *
      * @param secretEngineVersions paths to use for accessing Vault secrets.
      *                             Key: secret path, value: Engine version to use.
@@ -144,7 +146,7 @@ public class VaultConfig implements Serializable {
      * @return This object, with secrets paths populated, ready for additional builder-pattern method calls or else finalization with the build() method
      */
     public VaultConfig secretsEnginePathMap(final Map<String, String> secretEngineVersions) {
-        this.secretsEnginePathMap = new ConcurrentHashMap<>(secretEngineVersions);
+        this.secretsEnginePathMap = new LinkedHashMap<>(secretEngineVersions);
         return this;
     }
 

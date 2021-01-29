@@ -4,6 +4,7 @@ import com.bettercloud.vault.response.LogicalResponse;
 import com.bettercloud.vault.vault.VaultTestUtils;
 import com.bettercloud.vault.vault.mock.MockVault;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import org.eclipse.jetty.server.Server;
 import org.junit.Assert;
@@ -83,13 +84,29 @@ public class VaultTests {
 
     @Test
     public void kvEngineMapIsHonored() throws VaultException {
-        HashMap<String, String> testMap = new HashMap<>();
+        LinkedHashMap<String, String> testMap = new LinkedHashMap<>();
+        testMap.put("kv-v1/secret", "2");
         testMap.put("kv-v1", "1");
         VaultConfig vaultConfig = new VaultConfig().secretsEnginePathMap(testMap);
         Assert.assertNotNull(vaultConfig);
         Vault vault = new Vault(vaultConfig, true, 2);
         Assert.assertNotNull(vault);
         Assert.assertEquals(String.valueOf(1), vault.logical().getEngineVersionForSecretPath("kv-v1").toString());
+        Assert.assertEquals(String.valueOf(2), vault.logical().getEngineVersionForSecretPath("kv-v1/secret").toString());
+        Assert.assertEquals(String.valueOf(2), vault.logical().getEngineVersionForSecretPath("notInMap").toString());
+    }
+
+    @Test
+    public void kvEngineMapOrderIsHonored() throws VaultException {
+        LinkedHashMap<String, String> testMap = new LinkedHashMap<>();
+        testMap.put("kv-v1", "1");
+        testMap.put("kv-v1/secret", "2");
+        VaultConfig vaultConfig = new VaultConfig().secretsEnginePathMap(testMap);
+        Assert.assertNotNull(vaultConfig);
+        Vault vault = new Vault(vaultConfig, true, 2);
+        Assert.assertNotNull(vault);
+        Assert.assertEquals(String.valueOf(1), vault.logical().getEngineVersionForSecretPath("kv-v1").toString());
+        Assert.assertEquals(String.valueOf(1), vault.logical().getEngineVersionForSecretPath("kv-v1/secret").toString());
         Assert.assertEquals(String.valueOf(2), vault.logical().getEngineVersionForSecretPath("notInMap").toString());
     }
 
