@@ -627,6 +627,7 @@ public class Logical {
     /**
      * <p> Provides which secrets engine version to use for the desired path.
      * Checks to see if the relative path is in the secretsEnginePathMap, and returns the specified value if it is.
+     * Checks secretsEnginePathMap in order, so the first matching entry defined in the map takes precedence.
      * Otherwise return the globalEngineVersion. </p>
      *
      * @param secretPath The desired Vault path to access
@@ -634,10 +635,15 @@ public class Logical {
      */
     private Integer engineVersionForSecretPath(final String secretPath) {
         if (!this.config.getSecretsEnginePathMap().isEmpty()) {
-            Optional<String> matchedKeyPrefix = this.config.getSecretsEnginePathMap().keySet().stream()
-                    .filter(key -> secretPath.startsWith(key))
-                    .findFirst();
-            return matchedKeyPrefix.isPresent() ?
+            Optional<String> matchedKeyPrefix = Optional.empty();
+            for (Map.Entry<String,String> secretPathMapping : this.config.getSecretsEnginePathMap().entrySet())
+            {
+                if(secretPath.startsWith(secretPathMapping.getKey())){
+                    matchedKeyPrefix = Optional.of(secretPathMapping.getKey());
+                    break;
+                }
+            }
+                return matchedKeyPrefix.isPresent() ?
                     Integer.valueOf(this.config.getSecretsEnginePathMap().get(matchedKeyPrefix.get()))
                     : this.config.getGlobalEngineVersion();
         }
